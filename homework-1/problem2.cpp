@@ -2,14 +2,13 @@
 #include <sys/types.h>
 #include <sys/dir.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 
 int search (char* file, char* dir){
     DIR *dirptr=opendir(dir);
     if (dirptr == NULL) {
         perror("Error opening directory");
-        exit(1);
+        return 1;
     }
     struct dirent *entry = readdir(dirptr);
     while (entry != NULL) {
@@ -26,7 +25,7 @@ int search (char* file, char* dir){
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         printf("Use the following: %s <file> <directory>\n", argv[0]);
-        exit(1);
+        return 1;
     }
 
     char *file = argv[1];

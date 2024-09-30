@@ -1,34 +1,17 @@
-#include <fcntl.h>
-#include <stdio.h>
+#include <fcntl.h> 
+#include <stdio.h> 
 #include <unistd.h>
 #include <errno.h>
-#include <fstream>
 #include <sys/stat.h>
-using namespace std;
 
-extern int errno;
 
-void replace_and_write(char *buffer, int size, int dest_fd)
-{
-    for (int i = 0; i < size; i++)
-    {
-        if (isalnum(buffer[i]))
-        {
-            if (buffer[i] == '1')
-            {
-                buffer[i] = 'A';
-            }
-            write(dest_fd, &buffer[i], 1);
-        }
-    }
-}
 
 int main(int argc, char *argv[])
 {
     if (argc != 4)
     {
         printf("Use the following: %s directoryNameWithPath source.txt newfile.txt\n", argv[0]);
-        exit(1);
+        return 1;
     }
 
     char *dir_path = argv[1];
@@ -38,7 +21,7 @@ int main(int argc, char *argv[])
     if (mkdir(dir_path, 0777) == -1)
     {
         printf("%s", "Error creating directory");
-        exit(1);
+        return 1;
     }
 
     char full_path[4096];
@@ -49,7 +32,7 @@ int main(int argc, char *argv[])
     if (source_fd == -1)
     {
         perror("Error opening source file");
-        exit(1);
+        return 1;
     }
 
     // Create and open new file
@@ -58,7 +41,7 @@ int main(int argc, char *argv[])
     {
         perror("Error creating new file");
         close(source_fd);
-        exit(1);
+        return 1;
     }
 
     int bytesRead;
@@ -79,12 +62,9 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < bytesRead; i++)
         {
-            if (isalnum(buffer[i]))
+            if (buffer[i] == '1')
             {
-                if (buffer[i] == '1')
-                {
-                    buffer[i] = 'A';
-                }
+                buffer[i] = 'A';
             }
             write(dest_fd, &buffer[i], 1);
         }
@@ -95,5 +75,5 @@ int main(int argc, char *argv[])
     printf("%s", buffer);
     close(source_fd);
     close(dest_fd);
-    exit(0);
+    return 0;
 }
