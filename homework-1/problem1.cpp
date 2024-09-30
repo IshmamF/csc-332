@@ -4,8 +4,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-
-
 int main(int argc, char *argv[])
 {
     if (argc != 4)
@@ -20,7 +18,7 @@ int main(int argc, char *argv[])
 
     if (mkdir(dir_path, 0777) == -1)
     {
-        printf("%s", "Error creating directory");
+        perror("Error creating directory");
         return 1;
     }
 
@@ -47,15 +45,6 @@ int main(int argc, char *argv[])
     int bytesRead;
     char buffer[101];
 
-    /*
-    bytesRead = read(source_fd, buffer, 100);
-    if (bytesRead == -1)
-    {
-        printf("Error reading source.txt");
-        close(source_fd);
-        return 1;
-    }*/
-
     while ((bytesRead = read(source_fd, buffer, 100)) > 0)
     {
         buffer[bytesRead] = '\0'; // Null-terminate the string
@@ -66,14 +55,32 @@ int main(int argc, char *argv[])
             {
                 buffer[i] = 'A';
             }
-            write(dest_fd, &buffer[i], 1);
+            if (write(dest_fd, &buffer[i], 1) == -1)
+            {
+                perror("Error writing to destination file");
+                close(source_fd);
+                close(dest_fd);
+                return 1;
+            }
         }
-        write(dest_fd, "XYZ", 3);
+        if (write(dest_fd, "XYZ", 3) == -1)
+        {
+            perror("Error writing XYZ to destination file");
+            close(source_fd);
+            close(dest_fd);
+            return 1;
+        }
+    }
+    if (bytesRead == -1)
+    {
+        perror("Error reading from source file");
+        close(source_fd);
+        close(dest_fd);
+        return 1;
     }
 
-    buffer[bytesRead] = '\0';
-    printf("%s", buffer);
     close(source_fd);
     close(dest_fd);
+    
     return 0;
 }
